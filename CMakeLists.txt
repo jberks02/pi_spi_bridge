@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( cpp_template )
+# find_package( OpenCV REQUIRED )
+add_executable( ${PROJECT_NAME} main.cpp )
+target_link_libraries( ${PROJECT_NAME} wiringPi)
+add_definitions(-std=c++0x -L/home/pi/wiringPi/wiringPi -lwiringPi )
