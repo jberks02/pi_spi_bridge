@@ -34,7 +34,6 @@ int main(void)
             memset(tx_buffer, 0, 32);
             memset(rx_buffer, 0, 32);
             sprintf((char *)tx_buffer, "I am pi");
-            // printf("sending %s, to spidev0.0 in full duplex \n ", (char *)tx_buffer);
             
             for(int i = 0; i < 32;i++) {
 
@@ -45,8 +44,12 @@ int main(void)
                 rx_buffer[i] = tr_rx_buff[0];
 
             };
-
             printf("rx_buffer=%s\n", (char *)rx_buffer);
+            for(int i = 0;i < 32; i++) {
+                cout << rx_buffer[i];
+            }
+            cout << endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         
         delete mySPI;
     }
