@@ -1,25 +1,54 @@
-#include <iostream> // Include all needed libraries here
-#include <wiringPi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <spidev_lib++.h>
+#include <chrono>
+#include <thread>
+using namespace std;
 
-using namespace std; // No need to keep using “std”
+spi_config_t spi_config;
+uint8_t tx_buffer[32];
+uint8_t rx_buffer[32];
+uint8_t tr_rx_buff[1];
+uint8_t tr_tx_buff[1];
 
-int main() {
-    wiringPiSetup();    // Setup the library
-    pinMode(0, OUTPUT); // Configure GPIO0 as an output
-    pinMode(1, INPUT);  // Configure GPIO1 as an input
-    digitalWrite(0, 0);
-    // Main program loop
-    while (1)
+int main(void)
+{
+    SPI *mySPI = NULL;
+    spi_config.mode = 0;
+    // spi_config.speed = 100000000;
+    spi_config.speed = 1000000;
+    // spi_config.speed = 500000;
+    spi_config.delay = 0;
+    spi_config.bits_per_word = 8;
+    
+    mySPI = new SPI("/dev/spidev0.0", &spi_config);
+
+    cout << "at if" << "\n";
+    
+    if (mySPI->begin())
     {
-        // Button is pressed if digitalRead returns 0
-            // Toggle the LED
-            digitalWrite(0, !digitalRead(0));
-            uint state = digitalRead(0);
-            string onOff;
-            if(state == 0) onOff = " off ";
-            else onOff = " on ";
-            cout << "LED is in an" + onOff + "state" << '\n';
-            delay(200); // Delay 500ms
+        cout << "under if" << "\n";
+        // while(true) {
+            memset(tx_buffer, 0, 32);
+            memset(rx_buffer, 0, 32);
+            sprintf((char *)tx_buffer, "I am pi");
+            // printf("sending %s, to spidev0.0 in full duplex \n ", (char *)tx_buffer);
+            
+            for(int i = 0; i < 32;i++) {
+
+                tr_tx_buff[0] = tx_buffer[i];
+
+                mySPI->xfer(tr_tx_buff, 1, tr_rx_buff, 1);
+
+                rx_buffer[i] = tr_rx_buff[0];
+
+            };
+
+            printf("rx_buffer=%s\n", (char *)rx_buffer);
+        
+        delete mySPI;
     }
-    return 0;
+    return 1;
 }
